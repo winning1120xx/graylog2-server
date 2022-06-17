@@ -23,13 +23,11 @@ import { asMock } from 'helpers/mocking';
 import DashboardPageContext from './DashboardPageContext';
 import DashboardPageContextProvider from './DashboardPageContextProvider';
 
-const mockHistoryReplace = jest.fn();
+const mockNavigate = jest.fn();
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    replace: mockHistoryReplace,
-  }),
+  useNavigate: () => mockNavigate,
   useLocation: jest.fn(() => ({
     pathname: '',
     search: '',
@@ -76,7 +74,7 @@ describe('DashboardPageContextProvider', () => {
 
     contextValue.setDashboardPage('page-id');
 
-    expect(mockHistoryReplace).toBeCalledWith('?page=page-id');
+    expect(mockNavigate).toBeCalledWith('?page=page-id');
   });
 
   it('should update url on page change', () => {
@@ -95,7 +93,7 @@ describe('DashboardPageContextProvider', () => {
 
     contextValue.setDashboardPage('page-id');
 
-    expect(mockHistoryReplace).toBeCalledWith('?page=page-id');
+    expect(mockNavigate).toBeCalledWith('?page=page-id');
   });
 
   it('should unset a page from url', () => {
@@ -114,7 +112,7 @@ describe('DashboardPageContextProvider', () => {
 
     contextValue.unsetDashboardPage();
 
-    expect(mockHistoryReplace).toBeCalledWith('');
+    expect(mockNavigate).toBeCalledWith('');
   });
 
   it('should not set to an unknown page', () => {
@@ -133,6 +131,6 @@ describe('DashboardPageContextProvider', () => {
 
     contextValue.setDashboardPage('new');
 
-    expect(mockHistoryReplace).toBeCalledWith('');
+    expect(mockNavigate).toBeCalledWith('');
   });
 });
