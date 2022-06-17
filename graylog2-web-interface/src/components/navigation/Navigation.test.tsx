@@ -16,14 +16,15 @@
  */
 import * as React from 'react';
 import * as Immutable from 'immutable';
-import { mount } from 'wrappedEnzyme';
+import { mount, mountUnwrapped } from 'wrappedEnzyme';
 import { PluginStore } from 'graylog-web-plugin/plugin';
-import { Route, MemoryRouter } from 'react-router-dom';
+import { Route, Routes, MemoryRouter } from 'react-router-dom';
+import DefaultProviders from 'DefaultProviders';
 
 import mockComponent from 'helpers/mocking/MockComponent';
 import { alice as currentUser } from 'fixtures/users';
 import { asMock } from 'helpers/mocking';
-import Routes from 'routing/Routes';
+import RoutePaths from 'routing/Routes';
 import AppConfig from 'util/AppConfig';
 import CurrentUserContext from 'contexts/CurrentUserContext';
 import Navigation from 'components/navigation/Navigation';
@@ -73,7 +74,7 @@ describe('Navigation', () => {
       const brand = wrapper.find('NavbarBrand');
 
       expect(brand).toExist();
-      expect(brand.find('LinkContainer')).toHaveProp('to', Routes.STARTPAGE);
+      expect(brand.find('LinkContainer')).toHaveProp('to', RoutePaths.STARTPAGE);
       expect(brand.find('NavigationBrand')).toExist();
     });
 
@@ -204,14 +205,19 @@ describe('Navigation', () => {
     });
 
     it('sets dropdown title based on match', () => {
-      const wrapper = mount((
-        <MemoryRouter initialEntries={['/somethingelse']}>
-          <Route path="/somethingelse">
-            <SimpleNavigation component={Navigation}
-                              location={{ pathname: '/somethingelse' }}
-                              permissions={['somethingelse', 'completelydifferent']} />
-          </Route>
-        </MemoryRouter>
+      const wrapper = mountUnwrapped((
+        <DefaultProviders>
+          <MemoryRouter initialEntries={['/somethingelse']}>
+            <Routes>
+              <Route path="/somethingelse"
+                     element={(
+                       <SimpleNavigation component={Navigation}
+                                         location={{ pathname: '/somethingelse' }}
+                                         permissions={['somethingelse', 'completelydifferent']} />
+                   )} />
+            </Routes>
+          </MemoryRouter>
+        </DefaultProviders>
       ));
 
       expect(wrapper.find('NavDropdown[title="Neat Stuff / Something Else"]')).toExist();
