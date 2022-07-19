@@ -40,6 +40,8 @@ jest.mock('views/stores/SearchStore', () => ({
   },
 }));
 
+jest.mock('views/logic/fieldtypes/useFieldTypes');
+
 jest.mock('stores/users/CurrentUserStore', () => ({
   CurrentUserStore: MockStore(
     ['get', () => mockCurrentUser],
