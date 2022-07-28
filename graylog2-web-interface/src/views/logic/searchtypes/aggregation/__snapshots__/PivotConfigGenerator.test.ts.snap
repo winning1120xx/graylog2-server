@@ -5,7 +5,7 @@ Object {
   "config": Object {
     "column_groups": Array [],
     "id": "vals",
-    "rollup": true,
+    "rollup": false,
     "row_groups": Array [
       Object {
         "field": "field",
@@ -38,7 +38,7 @@ exports[`PivotConfigGenerator should generate a chart config 1`] = `
 Object {
   "column_groups": Array [],
   "id": Any<String>,
-  "rollup": true,
+  "rollup": false,
   "row_groups": Array [
     Object {
       "field": "field",
@@ -60,7 +60,7 @@ Object {
   "config": Object {
     "column_groups": Array [],
     "id": "vals",
-    "rollup": true,
+    "rollup": false,
     "row_groups": Array [
       Object {
         "field": "field",
@@ -86,7 +86,7 @@ Object {
   "config": Object {
     "column_groups": Array [],
     "id": "vals",
-    "rollup": true,
+    "rollup": false,
     "row_groups": Array [
       Object {
         "field": "field",
