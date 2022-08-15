@@ -38,7 +38,7 @@ import type FieldTypeMapping from 'views/logic/fieldtypes/FieldTypeMapping';
 import { ViewStore } from 'views/stores/ViewStore';
 import useSaveViewFormControls from 'views/hooks/useSaveViewFormControls';
 
-import SavedSearchControls from './SavedSearchControls';
+import SearchActionsMenu from './SearchActionsMenu';
 
 jest.mock('routing/Routes', () => ({ pluginRoute: (x) => x }));
 jest.mock('views/hooks/useSaveViewFormControls');
@@ -62,7 +62,7 @@ jest.mock('views/stores/ViewManagementStore', () => ({
   },
 }));
 
-describe('SavedSearchControls', () => {
+describe('SearchActionsMenu', () => {
   const createViewStoreState = (dirty = true, id = undefined) => ({
     activeQuery: '',
     view: View.builder()
@@ -85,23 +85,23 @@ describe('SavedSearchControls', () => {
     queryFields: Immutable.Map<string, Immutable.List<FieldTypeMapping>>(),
   };
 
-  type SimpleSavedSearchControlsProps = {
+  type SimpleSearchActionsMenuProps = {
     loadNewView?: NewViewLoaderContextType,
     onLoadView?: ViewLoaderContextType,
     currentUser?: User,
   };
 
-  const SimpleSavedSearchControls = ({
+  const SimpleSearchActionsMenu = ({
     loadNewView = () => Promise.resolve(),
     onLoadView,
     currentUser: user,
     ...props
-  }: SimpleSavedSearchControlsProps) => (
+  }: SimpleSearchActionsMenuProps) => (
     <FieldTypesContext.Provider value={fieldTypes}>
       <ViewLoaderContext.Provider value={onLoadView}>
         <CurrentUserContext.Provider value={user}>
           <NewViewLoaderContext.Provider value={loadNewView}>
-            <SavedSearchControls {...props} />
+            <SearchActionsMenu {...props} />
           </NewViewLoaderContext.Provider>
         </CurrentUserContext.Provider>
       </ViewLoaderContext.Provider>
@@ -112,7 +112,7 @@ describe('SavedSearchControls', () => {
   const expectShareButton = findShareButton;
   const findCreateNewButton = () => screen.findByRole('button', { name: /create new/i });
 
-  SimpleSavedSearchControls.defaultProps = {
+  SimpleSearchActionsMenu.defaultProps = {
     loadNewView: () => Promise.resolve(),
     onLoadView: () => Promise.resolve(),
     currentUser,
@@ -130,7 +130,7 @@ describe('SavedSearchControls', () => {
       const user = currentUser.toBuilder()
         .permissions(Immutable.List(['dashboards:create']))
         .build();
-      render(<SimpleSavedSearchControls currentUser={user} />);
+      render(<SimpleSearchActionsMenu currentUser={user} />);
 
       const exportAsDashboardMenuItem = await screen.findByText('Export to dashboard');
       userEvent.click(exportAsDashboardMenuItem);
@@ -146,7 +146,7 @@ describe('SavedSearchControls', () => {
       const user = currentUser.toBuilder()
         .permissions(Immutable.List([]))
         .build();
-      render(<SimpleSavedSearchControls currentUser={user} />);
+      render(<SimpleSearchActionsMenu currentUser={user} />);
 
       await screen.findByText('Export');
 
@@ -154,7 +154,7 @@ describe('SavedSearchControls', () => {
     });
 
     it('should open file export modal', async () => {
-      render(<SimpleSavedSearchControls />);
+      render(<SimpleSearchActionsMenu />);
 
       const exportMenuItem = await screen.findByText('Export');
       userEvent.click(exportMenuItem);
@@ -167,7 +167,7 @@ describe('SavedSearchControls', () => {
         .permissions(Immutable.List([ViewsPermissions.View.Edit('some-id')]))
         .build();
       asMock(ViewStore.getInitialState).mockReturnValue(createViewStoreState(false, 'some-id'));
-      render(<SimpleSavedSearchControls currentUser={user} />);
+      render(<SimpleSearchActionsMenu currentUser={user} />);
 
       const exportMenuItem = await screen.findByText('Edit metadata');
       userEvent.click(exportMenuItem);
@@ -178,7 +178,7 @@ describe('SavedSearchControls', () => {
     it('should clear a view', async () => {
       const loadNewView = jest.fn(() => Promise.resolve());
 
-      render(<SimpleSavedSearchControls loadNewView={loadNewView} />);
+      render(<SimpleSearchActionsMenu loadNewView={loadNewView} />);
 
       const resetSearch = await screen.findByText('Reset search');
       userEvent.click(resetSearch);
@@ -191,7 +191,7 @@ describe('SavedSearchControls', () => {
       const onLoadView = jest.fn((view) => Promise.resolve(view));
       asMock(ViewStore.getInitialState).mockReturnValue(createViewStoreState(false));
 
-      render(<SimpleSavedSearchControls onLoadView={onLoadView} />);
+      render(<SimpleSearchActionsMenu onLoadView={onLoadView} />);
 
       userEvent.click(await screen.findByTitle('Save search'));
       userEvent.type(await findTitleInput(), 'Test');
@@ -203,7 +203,7 @@ describe('SavedSearchControls', () => {
     it('should duplicate a saved search', async () => {
       const viewStoreState = createViewStoreState(false, 'some-id');
       asMock(ViewStore.getInitialState).mockReturnValue(viewStoreState);
-      render(<SimpleSavedSearchControls />);
+      render(<SimpleSearchActionsMenu />);
 
       userEvent.click(await screen.findByTitle('Saved search'));
       userEvent.type(await findTitleInput(), ' and further title');
@@ -226,7 +226,7 @@ describe('SavedSearchControls', () => {
 
       const viewStoreState = createViewStoreState(false, 'some-id');
       asMock(ViewStore.getInitialState).mockReturnValue(viewStoreState);
-      render(<SimpleSavedSearchControls />);
+      render(<SimpleSearchActionsMenu />);
 
       userEvent.click(await screen.findByTitle('Saved search'));
       userEvent.type(await findTitleInput(), ' and further title');
@@ -244,7 +244,7 @@ describe('SavedSearchControls', () => {
     describe('has "Share" option', () => {
       it('includes the option to share the current search', async () => {
         asMock(ViewStore.getInitialState).mockReturnValue(createViewStoreState(false, 'some-id'));
-        render(<SimpleSavedSearchControls />);
+        render(<SimpleSearchActionsMenu />);
 
         await expectShareButton();
       });
@@ -256,7 +256,7 @@ describe('SavedSearchControls', () => {
           .build();
         asMock(ViewStore.getInitialState).mockReturnValue(createViewStoreState(false, 'some-id'));
 
-        render(<SimpleSavedSearchControls currentUser={notOwningUser} />);
+        render(<SimpleSearchActionsMenu currentUser={notOwningUser} />);
 
         const shareButton = await findShareButton();
 
@@ -270,7 +270,7 @@ describe('SavedSearchControls', () => {
           .build();
         asMock(ViewStore.getInitialState).mockReturnValue(createViewStoreState(false, owningUser.id));
 
-        render(<SimpleSavedSearchControls currentUser={owningUser} />);
+        render(<SimpleSearchActionsMenu currentUser={owningUser} />);
 
         const shareButton = await findShareButton();
 
@@ -284,7 +284,7 @@ describe('SavedSearchControls', () => {
           .build();
         asMock(ViewStore.getInitialState).mockReturnValue(createViewStoreState(false, owningUser.id));
 
-        render(<SimpleSavedSearchControls currentUser={owningUser} />);
+        render(<SimpleSearchActionsMenu currentUser={owningUser} />);
 
         const shareButton = await findShareButton();
 
@@ -294,27 +294,25 @@ describe('SavedSearchControls', () => {
       it('which should be enabled if current user is admin', async () => {
         asMock(ViewStore.getInitialState).mockReturnValue(createViewStoreState(false, adminUser.id));
 
-        render(<SimpleSavedSearchControls currentUser={adminUser} />);
+        render(<SimpleSearchActionsMenu currentUser={adminUser} />);
 
         const shareSearch = await findShareButton();
 
         expect(shareSearch).not.toBeDisabled();
       });
 
-      it('which should be hidden if search is unsaved', async () => {
-        render(<SimpleSavedSearchControls />);
+      it('which should be disabled if search is unsaved', async () => {
+        render(<SimpleSearchActionsMenu />);
 
-        const shareSearch = await findShareButton();
-
-        expect(shareSearch).toMatchSnapshot();
+        expect(await findShareButton()).toBeDisabled();
       });
     });
   });
 
-  describe('render the SavedSearchControls', () => {
+  describe('render the SearchActionsMenu', () => {
     it('should render not dirty with unsaved view', async () => {
       asMock(ViewStore.getInitialState).mockReturnValue(createViewStoreState(false));
-      render(<SimpleSavedSearchControls />);
+      render(<SimpleSearchActionsMenu />);
 
       await screen.findByRole('button', { name: 'Save search' });
     });
@@ -333,7 +331,7 @@ describe('SavedSearchControls', () => {
         isNew: true,
       };
       asMock(ViewStore.getInitialState).mockReturnValue(viewStoreState);
-      render(<SimpleSavedSearchControls />);
+      render(<SimpleSearchActionsMenu />);
 
       await screen.findByRole('button', { name: 'Saved search' });
     });
@@ -353,7 +351,7 @@ describe('SavedSearchControls', () => {
         isNew: false,
       };
       asMock(ViewStore.getInitialState).mockReturnValue(viewStoreState);
-      render(<SimpleSavedSearchControls />);
+      render(<SimpleSearchActionsMenu />);
 
       await screen.findByRole('button', { name: 'Unsaved changes' });
     });
