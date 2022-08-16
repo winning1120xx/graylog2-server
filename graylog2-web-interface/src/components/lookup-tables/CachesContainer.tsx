@@ -16,29 +16,31 @@
  */
 import * as React from 'react';
 
-import { Autocomplete } from 'components/common';
+import { useGetAllCaches } from 'hooks/lookup-tables/useLookupTableCachesAPI';
+import { Spinner } from 'components/common';
 
+type Props = {
+  children: React.ReactChild[],
+};
 
-// TODO: implement autocomplete here.
-// TODO: Create issue to add filter to API to not include ILLUMINATE caches.
+const CachesContainer = ({ children }: Props) => {
+  const { caches, pagination, loadingCaches } = useGetAllCaches({ page: 1, perPage: 1000000 });
 
-const CachePicker = () => {
+  console.log('caches:', caches);
+
   return (
-    <fieldset>
-      <Autocomplete fieldName="newCache"
-                    clearable
-                    required
-                    options={[
-                      {
-                        label: 'this cache',
-                        value: 'this cache id',
-                      },
-                      {
-                        label: 'this other cache',
-                        value: 'this other cache id',
-                      }]} />
-    </fieldset>
+    loadingCaches ? <Spinner /> : (
+      <div>
+        {React.Children.map(
+          children,
+          (child: React.ReactElement) => React.cloneElement(
+            child,
+            { caches, pagination },
+          ),
+        )}
+      </div>
+    )
   );
 };
 
-export default CachePicker;
+export default CachesContainer;
