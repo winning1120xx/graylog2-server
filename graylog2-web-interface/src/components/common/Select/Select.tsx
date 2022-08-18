@@ -241,6 +241,8 @@ export type Props<OptionValue> = {
   value?: OptionValue,
   valueKey: string,
   valueRenderer?: (option: Option) => React.ReactElement,
+  onInputChange?: (arg: string) => void,
+  noOptionsMessage?: (arg: { inputValue: string }) => null | string | number | boolean | {} | React.ReactElement | React.ReactNodeArray | React.ReactPortal,
 };
 
 type CustomComponents = {
@@ -358,6 +360,10 @@ class Select<OptionValue> extends React.Component<Props<OptionValue>, State> {
     menuPlacement: PropTypes.oneOf(['top', 'bottom', 'auto']),
     /** Max height of the menu */
     maxMenuHeight: PropTypes.number,
+    /** On input change callback */
+    onInputChange: PropTypes.func,
+    /** Message to show when no options */
+    noOptionsMessage: PropTypes.func,
   };
 
   static defaultProps = {
@@ -389,6 +395,8 @@ class Select<OptionValue> extends React.Component<Props<OptionValue>, State> {
     maxMenuHeight: 300,
     // ref: undefined,
     menuPortalTarget: undefined,
+    onInputChange: undefined,
+    noOptionsMessage: undefined,
   };
 
   constructor(props: Props<OptionValue>) {
@@ -567,6 +575,8 @@ class Select<OptionValue> extends React.Component<Props<OptionValue>, State> {
       styles: _styles({ size, theme }),
       theme: this._selectTheme,
       value: formattedValue,
+      onInputChange: this.props.onInputChange,
+      noOptionsMessage: this.props.noOptionsMessage,
     };
 
     if (allowCreate) {

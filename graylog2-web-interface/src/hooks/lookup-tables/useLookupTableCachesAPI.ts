@@ -16,8 +16,9 @@
  */
 import { useQuery } from 'react-query';
 
-import { fetchAll } from './api/lookupTablesCachesAPI';
 import UserNotification from 'util/UserNotification';
+
+import { fetchAll } from './api/lookupTablesCachesAPI';
 
 type GetAllCachesType = {
   page?: number,
@@ -27,7 +28,7 @@ type GetAllCachesType = {
 
 export const useGetAllCaches = ({ page, perPage, query }: GetAllCachesType = {}) => {
   const { data, isLoading, error } = useQuery<any, Error>(
-    ['all-caches'],
+    ['all-caches', page, perPage, query],
     () => fetchAll(page, perPage, query),
     {
       onError: () => UserNotification.error(error.message),

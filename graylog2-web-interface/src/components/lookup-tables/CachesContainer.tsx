@@ -24,9 +24,7 @@ type Props = {
 };
 
 const CachesContainer = ({ children }: Props) => {
-  const { caches, pagination, loadingCaches } = useGetAllCaches({ page: 1, perPage: 1000000 });
-
-  console.log('caches:', caches);
+  const { caches, pagination, loadingCaches } = useGetAllCaches({ page: 1, perPage: 1000 });
 
   return (
     loadingCaches ? <Spinner /> : (

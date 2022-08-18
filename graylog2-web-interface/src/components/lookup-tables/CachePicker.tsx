@@ -14,29 +14,55 @@
  * along with this program. If not, see
  * <http://www.mongodb.com/licensing/server-side-public-license>.
  */
-import * as React from 'react';
+import React from 'react';
+import { useField } from 'formik';
 
-import { Autocomplete } from 'components/common';
+import type { LookupTableCache } from 'logic/lookup-tables/types';
+import { Input } from 'components/bootstrap';
+import { Select } from 'components/common';
 
+type Props = {
+  caches: LookupTableCache[],
+};
 
-// TODO: implement autocomplete here.
-// TODO: Create issue to add filter to API to not include ILLUMINATE caches.
+type OptionsType = {
+  label: string,
+  value: string,
+};
 
-const CachePicker = () => {
+const CachePicker = ({ caches }: Props) => {
+  const sortedCaches = React.useMemo(() => {
+    return caches.map((cache: LookupTableCache) => (
+      { value: cache.id, label: `${cache.title} (${cache.name})` }
+    )).sort((a: OptionsType, b: OptionsType) => {
+      if (a.label.toLowerCase() > b.label.toLowerCase()) return 1;
+      if (a.label.toLowerCase() < b.label.toLowerCase()) return -1;
+
+      return 0;
+    });
+  }, [caches]);
+
+  const [, { value, touched, error }, { setTouched, setValue }] = useField('cache_id');
+  const errorMessage = touched ? error : '';
+
   return (
     <fieldset>
-      <Autocomplete fieldName="newCache"
-                    clearable
-                    required
-                    options={[
-                      {
-                        label: 'this cache',
-                        value: 'this cache id',
-                      },
-                      {
-                        label: 'this other cache',
-                        value: 'this other cache id',
-                      }]} />
+      <Input id="cache-select"
+             label="Cache"
+             required
+             autoFocus
+             bsStyle={errorMessage ? 'error' : undefined}
+             help={errorMessage || 'Search by cache name'}
+             labelClassName="col-sm-3"
+             wrapperClassName="col-sm-9">
+        <Select placeholder="Select a cache"
+                clearable={false}
+                options={sortedCaches}
+                matchProp="label"
+                onBlur={() => setTouched(true)}
+                onChange={setValue}
+                value={value} />
+      </Input>
     </fieldset>
   );
 };
